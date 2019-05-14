@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">My quiz</string>
+    <string name="app_name">Erunda</string>
 
     <string name="correct">Верно!</string>
     <string name="incorrect">Неправильно!</string>
+
+    <string name="from">из</string>
+    <string name="solved">Отгадано</string>
 </resources>

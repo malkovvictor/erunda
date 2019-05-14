@@ -1,6 +1,8 @@
 package ru.heritagepw.android.erunda;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -36,6 +38,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         dbHelper = new QuizDatabaseHelper(getApplicationContext());
 
+        final SharedPreferences pref = getPref();
+        final int scorePlus = pref.getInt("correctAnswers", 0);
+        final int scoreTotal = pref.getInt("total", 0);
+
+        pref.edit().putInt("total", scoreTotal + 1).apply();
+
+        TextView score = findViewById(R.id.scoreTextView);
+        score.setText(getResources().getString(R.string.solved) + ": " + scorePlus + " " + getResources().getString(R.string.from) + " " + scoreTotal);
+
         currentQuestion = getNextQuestion();
         final RecyclerView recyclerView = findViewById(R.id.answerVariantsView);
 
@@ -51,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 boolean correct = position == currentQuestion.right;
                 String text = correct ? getResources().getString(R.string.correct) : getResources().getString(R.string.incorrect);
                 Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
-               // toast.setGravity(Gravity.CENTER, 0, 0);
 
                 View v = recyclerView.getChildAt(currentQuestion.right);
                 ((CardView) ((LinearLayout) v).getChildAt(0))
@@ -59,10 +69,13 @@ public class MainActivity extends AppCompatActivity {
 
                 if (!correct) {
                     ((CardView) ((LinearLayout) view).getChildAt(0))
-                        .setCardBackgroundColor(Color.RED);
+                            .setCardBackgroundColor(Color.RED);
                 }
                 toast.show();
 
+                if (correct) {
+                    pref.edit().putInt("correctAnswers", scorePlus + 1).apply();
+                }
 
 
                 new Handler().postDelayed(new Runnable() {
@@ -123,5 +136,8 @@ public class MainActivity extends AppCompatActivity {
 
         db.close();
         return q;
+    }
+    private SharedPreferences getPref() {
+        return  getApplicationContext().getSharedPreferences(getApplicationContext().getPackageName() + ".score", Context.MODE_PRIVATE);
     }
 }
