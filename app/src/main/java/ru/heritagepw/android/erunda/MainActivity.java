@@ -1,48 +1,127 @@
 package ru.heritagepw.android.erunda;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
+
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private AnswerListAdapter adapter;
+    private QuizDatabaseHelper dbHelper;
+
+    private Question currentQuestion;
+
+    private static final String QUESTION_COLUMN_NAME = "text";
+    private static final int DELAY = 1000;
+
+    private boolean clickable = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        dbHelper = new QuizDatabaseHelper(getApplicationContext());
 
+        currentQuestion = getNextQuestion();
+        final RecyclerView recyclerView = findViewById(R.id.answerVariantsView);
 
         RecyclerViewClickListener listener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Position: " + position, Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER, 0, 0);
+                synchronized (this) {
+                    if (!clickable) {
+                        return;
+                    }
+                    clickable = false;
+                }
+                boolean correct = position == currentQuestion.right;
+                String text = correct ? getResources().getString(R.string.correct) : getResources().getString(R.string.incorrect);
+                Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+               // toast.setGravity(Gravity.CENTER, 0, 0);
+
+                View v = recyclerView.getChildAt(currentQuestion.right);
+                ((CardView) ((LinearLayout) v).getChildAt(0))
+                    .setCardBackgroundColor(Color.GREEN);
+
+                if (!correct) {
+                    ((CardView) ((LinearLayout) view).getChildAt(0))
+                        .setCardBackgroundColor(Color.RED);
+                }
                 toast.show();
+
+
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent i = new Intent(MainActivity.this, MainActivity.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(i);
+                    }
+                }, DELAY);
             }
         };
 
-
-        ArrayList<String> list = new ArrayList<>();
-        list.add("Представитель птиц из нескольких родов семейства утиных: пеганки, нырковые утки, савки, речные утки, утки-пароходы, мускусные утки и крохали; всего более 110 видов. Распространены утки широко, в России более 30 видов. Самцы уток называются се́лезнями, птенцы утки — утя́тами. ");
-        list.add("Отряд вторично-водных позвоночных, которых обычно относят к сборной группе «пресмыкающихся». В рамках кладистики крокодилы рассматриваются как единственная выжившая субклада более широкой клады круротарзы или псевдозухии. ");
-        list.add("Игрушка в виде утки, как правило, жёлтого цвета. Она может быть сделана из резины или пенопласта. Жёлтая резиновая уточка стала ассоциироваться с купанием.");
-
-        RecyclerView recyclerView = findViewById(R.id.answerVariantsView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new AnswerListAdapter(list, listener);
+        adapter = new AnswerListAdapter(currentQuestion.answers, listener);
         recyclerView.setAdapter(adapter);
 
         TextView t = findViewById(R.id.mainWord);
-        t.setText("Абракадабра");
+        t.setText(currentQuestion.text);
 
+    }
+
+    private class Question {
+        String text;
+        List<String> answers = new ArrayList<>();
+        int right = -1;
+    }
+
+    private Question getNextQuestion() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Question q = new Question();
+
+        Cursor cur = db.rawQuery("select *, rowid from questions where rowid in (select rowid from questions where askedTimes in (select min(askedTimes) from questions) order by random() limit 1);", null);
+        if (cur.moveToFirst()) {
+            q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
+            String qid = Integer.toString(cur.getInt(cur.getColumnIndex("rowid")));
+            Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[] {qid});
+            if (cur2.moveToFirst()) {
+                int ii = 0;
+                do {
+                    q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
+                    boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
+                    if (isRight) {
+                        q.right = ii;
+                    }
+                    ii++;
+                } while (cur2.moveToNext());
+                cur2.close();
+            } else {
+                throw new RuntimeException("No answers found");
+            }
+            db.execSQL("update questions set askedTimes = ? where rowid = ?", new Object[] {cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("rowid"))});
+            cur.close();
+        } else {
+            throw new RuntimeException("No questions found");
+        }
+
+        db.close();
+        return q;
     }
 }
