@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Question currentQuestion;
 
     private static final String QUESTION_COLUMN_NAME = "text";
-    private static final int DELAY = 1000;
+    private static final int DELAY = 2000;
 
     private boolean clickable = true;
 
@@ -65,11 +65,11 @@ public class MainActivity extends AppCompatActivity {
 
                 View v = recyclerView.getChildAt(currentQuestion.right);
                 ((CardView) ((LinearLayout) v).getChildAt(0))
-                    .setCardBackgroundColor(Color.GREEN);
+                    .setCardBackgroundColor(getResources().getColor(R.color.correct));
 
                 if (!correct) {
                     ((CardView) ((LinearLayout) view).getChildAt(0))
-                            .setCardBackgroundColor(Color.RED);
+                            .setCardBackgroundColor(getResources().getColor(R.color.incorrect));
                 }
                 toast.show();
 
@@ -109,10 +109,10 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Question q = new Question();
 
-        Cursor cur = db.rawQuery("select *, rowid from questions where rowid in (select rowid from questions where askedTimes in (select min(askedTimes) from questions) order by random() limit 1);", null);
+        Cursor cur = db.rawQuery("select * from questions where id in (select id from questions where askedTimes in (select min(askedTimes) from questions) order by random() limit 1);", null);
         if (cur.moveToFirst()) {
             q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
-            String qid = Integer.toString(cur.getInt(cur.getColumnIndex("rowid")));
+            String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
             Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[] {qid});
             if (cur2.moveToFirst()) {
                 int ii = 0;
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 throw new RuntimeException("No answers found");
             }
-            db.execSQL("update questions set askedTimes = ? where rowid = ?", new Object[] {cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("rowid"))});
+            db.execSQL("update questions set askedTimes = ? where id = ?", new Object[] {cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("id"))});
             cur.close();
         } else {
             throw new RuntimeException("No questions found");
