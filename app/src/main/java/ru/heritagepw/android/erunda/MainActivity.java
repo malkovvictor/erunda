@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +12,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Question currentQuestion;
 
     private static final String QUESTION_COLUMN_NAME = "text";
-    private static final int DELAY = 2000;
+    private static final int DELAY = 500;
 
     private boolean clickable = true;
 
@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         if (cur.moveToFirst()) {
             q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
             String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
+            Log.v("Question", "preparing question #" + qid);
             Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[] {qid});
             if (cur2.moveToFirst()) {
                 int ii = 0;

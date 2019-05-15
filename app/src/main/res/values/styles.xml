@@ -15,7 +15,7 @@
         <item name="contentPaddingTop">24dp</item>
         <item name="contentPaddingLeft">16dp</item>
         <item name="contentPaddingRight">16dp</item>
-        <item name="cardBackgroundColor">#44000051</item>
+        <item name="cardBackgroundColor">#99000051</item>
 
 
         <item name="android:layout_marginLeft">2dp</item>
