@@ -18,14 +18,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 public class MainActivity extends AppCompatActivity {
     private AnswerListAdapter adapter;
     private QuizDatabaseHelper dbHelper;
 
     private Question currentQuestion;
+    private AdView mAdView;
 
     private static final String QUESTION_COLUMN_NAME = "text";
     private static final int DELAY = 500;
@@ -36,6 +38,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MobileAds.initialize(this, getString(R.string.addmobAppId));
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice(getString(R.string.my_test_phone_id))
+                .build();
+        mAdView.loadAd(adRequest);
+
+
         dbHelper = new QuizDatabaseHelper(getApplicationContext());
 
         final SharedPreferences pref = getPref();
@@ -97,12 +108,6 @@ public class MainActivity extends AppCompatActivity {
         TextView t = findViewById(R.id.mainWord);
         t.setText(currentQuestion.text);
 
-    }
-
-    private class Question {
-        String text;
-        List<String> answers = new ArrayList<>();
-        int right = -1;
     }
 
     private Question getNextQuestion() {
