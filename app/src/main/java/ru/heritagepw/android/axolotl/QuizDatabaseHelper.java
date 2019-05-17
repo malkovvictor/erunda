@@ -1,4 +1,4 @@
-package ru.heritagepw.android.erunda;
+package ru.heritagepw.android.axolotl;
 
 import android.content.Context;
 import android.content.SharedPreferences;
