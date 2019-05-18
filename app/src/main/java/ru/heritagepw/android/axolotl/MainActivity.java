@@ -23,6 +23,7 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 
 public class MainActivity extends AppCompatActivity {
+    public static final int MAX_QUESTION_SELECT_ATTEMPTS = 5;
     private AnswerListAdapter adapter;
     private QuizDatabaseHelper dbHelper;
 
@@ -76,34 +77,46 @@ public class MainActivity extends AppCompatActivity {
 
     private Question getNextQuestion() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Question q = new Question();
+        Question q = null;
 
-        Cursor cur = db.rawQuery("select * from questions where id in (select id from questions where askedTimes in (select min(askedTimes) from questions) order by random() limit 1);", null);
-        if (cur.moveToFirst()) {
-            q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
-            String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
-            Log.v("Question", "preparing question #" + qid);
-            Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[] {qid});
-            if (cur2.moveToFirst()) {
-                int ii = 0;
-                do {
-                    q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
-                    boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
-                    if (isRight) {
-                        q.right = ii;
+        for (int attempt = 0; null == q && attempt < MAX_QUESTION_SELECT_ATTEMPTS; attempt++) {
+            q = new Question();
+            Cursor cur = db.rawQuery("select * from questions where id in (select id from questions where askedTimes in (select min(askedTimes) from questions) order by random() limit 1);", null);
+            if (cur.moveToFirst()) {
+                q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
+                String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
+                db.execSQL("update questions set askedTimes = ? where id = ?", new Object[]{cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("id"))});
+                Log.v("Question", "preparing question #" + qid);
+                Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[]{qid});
+                if (cur2.moveToFirst()) {
+                    int ii = 0;
+                    do {
+                        q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
+                        boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
+                        if (isRight) {
+                            q.right = ii;
+                        }
+                        ii++;
+                    } while (cur2.moveToNext());
+                    cur2.close();
+                    if (q.right < 0) {
+                        // ни один из ответов не помечен как правильный
+                        Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
+                        q = null;
                     }
-                    ii++;
-                } while (cur2.moveToNext());
-                cur2.close();
+                } else {
+                    // на вопрос нет ни одного ответа
+                    Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
+                    q = null;
+                }
+                cur.close();
             } else {
-                throw new RuntimeException("No answers found");
+                throw new RuntimeException("No questions found");
             }
-            db.execSQL("update questions set askedTimes = ? where id = ?", new Object[] {cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("id"))});
-            cur.close();
-        } else {
-            throw new RuntimeException("No questions found");
         }
-
+        if (q == null) {
+            throw new RuntimeException("Database error, cannot find questions with answers");
+        }
         db.close();
         return q;
     }
