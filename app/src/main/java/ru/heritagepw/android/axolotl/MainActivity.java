@@ -1,7 +1,6 @@
 package ru.heritagepw.android.axolotl;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private AdView mAdView;
 
     private static final String QUESTION_COLUMN_NAME = "text";
-    private static final int DELAY = 500;
+    private static final int DELAY = 2000;
+    private static final int TRANSITION_DURATION = 400;
 
     private boolean clickable = true;
 
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         mAdView.loadAd(adRequest);
 
         dbHelper = new QuizDatabaseHelper(getApplicationContext());
+
+        ((ViewGroup) findViewById(R.id.constraintLayout)).getLayoutTransition().setDuration(TRANSITION_DURATION);
         updateView(getNextQuestion());
     }
 
@@ -66,51 +69,9 @@ public class MainActivity extends AppCompatActivity {
         final RecyclerView recyclerView = findViewById(R.id.answerVariantsView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        RecyclerViewClickListener listener = new RecyclerViewClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                synchronized (MainActivity.this) {
-                    if (!clickable) {
-                        return;
-                    }
-                    clickable = false;
-                }
-                boolean correct = position == q.right;
-                String text = correct ? getResources().getString(R.string.correct) : getResources().getString(R.string.incorrect);
-                Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
-
-                View v = recyclerView.getChildAt(q.right);
-                ((CardView) ((LinearLayout) v).getChildAt(0))
-                        .setCardBackgroundColor(getResources().getColor(R.color.correct));
-
-                if (!correct) {
-                    ((CardView) ((LinearLayout) view).getChildAt(0))
-                            .setCardBackgroundColor(getResources().getColor(R.color.incorrect));
-                }
-                toast.show();
-
-                if (correct) {
-                    pref.edit().putInt("correctAnswers", scorePlus + 1).apply();
-                }
-
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateView(getNextQuestion());
-                        clickable = true;
-
-/*                        Intent i = new Intent(MainActivity.this, MainActivity.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(i);*/
-                    }
-                }, DELAY);
-            }
-        };
-
+        RecyclerViewClickListener listener = new AnswerClickListener(scorePlus, q, recyclerView);
         adapter = new AnswerListAdapter(q.answers, listener);
         recyclerView.setAdapter(adapter);
-
     }
 
     private Question getNextQuestion() {
@@ -146,6 +107,56 @@ public class MainActivity extends AppCompatActivity {
         db.close();
         return q;
     }
+
+    private class AnswerClickListener implements RecyclerViewClickListener {
+        private int scorePlus;
+        private Question q;
+        private RecyclerView recyclerView;
+
+        public AnswerClickListener(int scorePlus, Question q, RecyclerView recyclerView) {
+            this.scorePlus = scorePlus;
+            this.q = q;
+            this.recyclerView = recyclerView;
+        }
+
+        @Override
+        public void onClick(View view, int position) {
+            synchronized (MainActivity.this) {
+                if (!clickable) {
+                    return;
+                }
+                clickable = false;
+            }
+            boolean correct = position == q.right;
+            String text = correct ? getResources().getString(R.string.correct) : getResources().getString(R.string.incorrect);
+            Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT);
+
+            View v = recyclerView.getChildAt(q.right);
+            ((CardView) ((LinearLayout) v).getChildAt(0))
+                    .setCardBackgroundColor(getResources().getColor(R.color.correct));
+
+            if (!correct) {
+                ((CardView) ((LinearLayout) view).getChildAt(0))
+                        .setCardBackgroundColor(getResources().getColor(R.color.incorrect));
+            }
+            toast.show();
+
+            if (correct) {
+                getPref().edit().putInt("correctAnswers", scorePlus + 1).apply();
+            }
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    findViewById(R.id.innerConstraintLayout).setVisibility(View.GONE);
+                    updateView(getNextQuestion());
+                    findViewById(R.id.innerConstraintLayout).setVisibility(View.VISIBLE);
+                    clickable = true;
+                }
+            }, DELAY);
+        }
+    }
+
     private SharedPreferences getPref() {
         return  getApplicationContext().getSharedPreferences(getApplicationContext().getPackageName() + ".score", Context.MODE_PRIVATE);
     }
