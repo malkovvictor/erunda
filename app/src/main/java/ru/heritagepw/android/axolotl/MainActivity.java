@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int attempt = 0; null == q && attempt < MAX_QUESTION_SELECT_ATTEMPTS; attempt++) {
             q = new Question();
-            Cursor cur = db.rawQuery("select * from questions where id in (select id from questions where askedTimes in (select min(askedTimes) from questions) order by random() limit 1);", null);
+            Cursor cur = db.rawQuery("select * from questions where id in (select id from questions where type=\"редкое слово\" and askedTimes in (select min(askedTimes) from questions where type=\"редкое слово\") order by random() limit 1);", null);
             if (cur.moveToFirst()) {
                 q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
                 String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
