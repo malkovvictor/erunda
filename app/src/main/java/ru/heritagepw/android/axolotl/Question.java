@@ -17,6 +17,7 @@ class Question {
         }
     }
 
+    int id;
     Type type = Type.RARE_WORD;
     String text;
     List<String> answers = new ArrayList<>();

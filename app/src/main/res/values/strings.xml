@@ -6,4 +6,5 @@
 
     <string name="from">из</string>
     <string name="solved">Отгадано</string>
+    <string name="title_activity_city">CityActivity</string>
 </resources>

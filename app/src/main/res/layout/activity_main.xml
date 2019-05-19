@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:background="@drawable/nebo3"
-    tools:context=".MainActivity">
+    tools:context=".QuestionActivity">
 
     <include
         android:id="@+id/toppanel"

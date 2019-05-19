@@ -1,6 +1,7 @@
 package ru.heritagepw.android.axolotl;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,7 +26,7 @@ import com.google.android.gms.ads.MobileAds;
 
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class QuestionActivity extends AppCompatActivity {
     public static final int MAX_QUESTION_SELECT_ATTEMPTS = 5;
     private AnswerListAdapter adapter;
     private QuizDatabaseHelper dbHelper;
@@ -43,10 +44,14 @@ public class MainActivity extends AppCompatActivity {
     private boolean clickable = true;
     private boolean hintUsed = false;
 
+    private Question currentQuestion;
+    private TravelController tc;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         MobileAds.initialize(this, getString(R.string.addmobAppId));
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
@@ -56,9 +61,29 @@ public class MainActivity extends AppCompatActivity {
         mAdView.loadAd(adRequest);
 
         dbHelper = new QuizDatabaseHelper(getApplicationContext());
+        tc = new TravelController(getApplicationContext());
 
         ((ViewGroup) findViewById(R.id.constraintLayout)).getLayoutTransition().setDuration(TRANSITION_DURATION);
-        updateView(getNextQuestion());
+        findViewById(R.id.mapButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(QuestionActivity.this, RoadActivity.class);
+                i.putExtra("current_question", currentQuestion.id);
+                startActivity(i);
+            }
+        });
+
+        if (savedInstanceState != null) {
+            int id = savedInstanceState.getInt("current_question", -1);
+            currentQuestion = getQuestion(id);
+        } else if (getIntent() != null && getIntent().hasExtra("current_question")) {
+            int id = getIntent().getIntExtra("current_question", -1);
+            currentQuestion = getQuestion(id);
+        } else {
+            currentQuestion = getRandomQuestion();
+        }
+
+        updateView(currentQuestion);
     }
 
     private void updateView(final Question q) {
@@ -83,7 +108,51 @@ public class MainActivity extends AppCompatActivity {
         hintUsed = false;
     }
 
-    private Question getNextQuestion() {
+    private Question getQuestion(int id) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Question q = new Question();
+
+        Cursor cur = db.rawQuery("select * from questions where id=?;", new String[] {Integer.toString(id)});
+        if (cur.moveToFirst()) {
+            q.id = id;
+            q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
+            String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
+            db.execSQL("update questions set askedTimes = ? where id = ?", new Object[]{cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("id"))});
+            Log.v("Question", "preparing question #" + qid);
+            Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[]{qid});
+            if (cur2.moveToFirst()) {
+                int ii = 0;
+                do {
+                    q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
+                    boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
+                    if (isRight) {
+                        q.right = ii;
+                    }
+                    ii++;
+                } while (cur2.moveToNext());
+                cur2.close();
+                if (q.right < 0) {
+                    // ни один из ответов не помечен как правильный
+                    Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
+                    q = null;
+                }
+            } else {
+                // на вопрос нет ни одного ответа
+                Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
+                q = null;
+            }
+            cur.close();
+        } else {
+            q = null;
+        }
+        if (q == null) {
+            return getRandomQuestion();
+        } else {
+            return q;
+        }
+    }
+
+    private Question getRandomQuestion() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Question q = null;
 
@@ -92,7 +161,8 @@ public class MainActivity extends AppCompatActivity {
             Cursor cur = db.rawQuery("select * from questions where id in (select id from questions where type=\"редкое слово\" and askedTimes in (select min(askedTimes) from questions where type=\"редкое слово\") order by random() limit 1);", null);
             if (cur.moveToFirst()) {
                 q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
-                String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
+                q.id = cur.getInt(cur.getColumnIndex("id"));
+                String qid = Integer.toString(q.id);
                 db.execSQL("update questions set askedTimes = ? where id = ?", new Object[]{cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("id"))});
                 Log.v("Question", "preparing question #" + qid);
                 Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[]{qid});
@@ -138,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            synchronized (MainActivity.this) {
+            synchronized (QuestionActivity.this) {
                 if (!clickable) {
                     return;
                 }
@@ -186,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view, int position) {
-            synchronized (MainActivity.this) {
+            synchronized (QuestionActivity.this) {
                 if (!clickable) {
                     return;
                 }
@@ -216,12 +286,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             getPref().edit().putInt("stars", stars).apply();
+            if (stars >= tc.getDestScore()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent i = new Intent(QuestionActivity.this, CityActivity.class);
+                        startActivity(i);
+                    }
+                }, DELAY);
+            }
 
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     findViewById(R.id.innerConstraintLayout).setVisibility(View.GONE);
-                    updateView(getNextQuestion());
+                    currentQuestion = getRandomQuestion();
+                    updateView(currentQuestion);
                     findViewById(R.id.innerConstraintLayout).setVisibility(View.VISIBLE);
                     clickable = true;
                 }
@@ -231,5 +311,19 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences getPref() {
         return  getApplicationContext().getSharedPreferences(getApplicationContext().getPackageName() + ".score", Context.MODE_PRIVATE);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("current_question", currentQuestion.id);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        int id = savedInstanceState.getInt("current_question", -1);
+        currentQuestion = getQuestion(id);
+        updateView(currentQuestion);
     }
 }
