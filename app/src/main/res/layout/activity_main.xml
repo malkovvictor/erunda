@@ -10,20 +10,25 @@
     android:background="@drawable/nebo3"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/scoreTextView"
-        android:layout_width="wrap_content"
+    <include
+        android:id="@+id/toppanel"
+        layout="@layout/toppanel"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        ads:layout_constraintBottom_toTopOf="@+id/innerConstraintLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        ads:layout_constraintBottom_toTopOf="@id/innerConstraintLayout"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        ads:layout_constraintTop_toTopOf="parent" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/innerConstraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        ads:layout_constraintTop_toBottomOf="@+id/scoreTextView"
+        android:layout_height="0dp"
+        ads:layout_constraintBottom_toTopOf="@id/adView"
+        ads:layout_constraintTop_toBottomOf="@id/toppanel"
         tools:layout_editor_absoluteX="310dp">
 
         <TextView

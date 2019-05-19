@@ -20,7 +20,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+
 import com.google.android.gms.ads.MobileAds;
+
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     public static final int MAX_QUESTION_SELECT_ATTEMPTS = 5;
@@ -33,7 +36,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int DELAY = 2000;
     private static final int TRANSITION_DURATION = 400;
 
+    private static final int CORRECT_REWARD_STARS = 3;
+    private static final int INCORRECT_PENALTY_STARS = -4;
+    private static final int HINT_REMOVE_INCORRECT_STARS = -1;
+
     private boolean clickable = true;
+    private boolean hintUsed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +64,8 @@ public class MainActivity extends AppCompatActivity {
     private void updateView(final Question q) {
         // статистика
         final SharedPreferences pref = getPref();
-        final int scorePlus = pref.getInt("correctAnswers", 0);
-        final int scoreTotal = pref.getInt("total", 0);
-        TextView score = findViewById(R.id.scoreTextView);
-        score.setText(getResources().getString(R.string.solved) + ": " + scorePlus + " " + getResources().getString(R.string.from) + " " + scoreTotal);
-        pref.edit().putInt("total", scoreTotal + 1).apply();
+        final int stars = pref.getInt("stars", 0);
+        ((TextView)findViewById(R.id.scoreTextView)).setText(Integer.toString(stars));
 
         // вопрос
         TextView t = findViewById(R.id.mainWord);
@@ -70,9 +75,12 @@ public class MainActivity extends AppCompatActivity {
         final RecyclerView recyclerView = findViewById(R.id.answerVariantsView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        RecyclerViewClickListener listener = new AnswerClickListener(scorePlus, q, recyclerView);
+        RecyclerViewClickListener listener = new AnswerClickListener(q, recyclerView);
         adapter = new AnswerListAdapter(q.answers, listener);
         recyclerView.setAdapter(adapter);
+
+        findViewById(R.id.hintButton).setOnClickListener(new HintButtonClickListener(q));
+        hintUsed = false;
     }
 
     private Question getNextQuestion() {
@@ -121,13 +129,57 @@ public class MainActivity extends AppCompatActivity {
         return q;
     }
 
+    private class HintButtonClickListener implements View.OnClickListener {
+        private Question q;
+
+        HintButtonClickListener(Question q) {
+            this.q = q;
+        }
+
+        @Override
+        public void onClick(View v) {
+            synchronized (MainActivity.this) {
+                if (!clickable) {
+                    return;
+                }
+                if (hintUsed) {
+                    return;
+                }
+                clickable = false;
+                hintUsed = true;
+            }
+            int stars = getPref().getInt("stars", 0);
+            if (stars <= 0) {
+                clickable = true;
+                return;
+            }
+            int num = q.answers.size();
+            int hint = new Random().nextInt(num - 1);
+            if (hint >= q.right) {
+                hint++;
+            }
+            q.answers.remove(hint);
+            if (hint < q.right) {
+                q.right--;
+            }
+            adapter.notifyItemRemoved(hint);
+
+            stars = stars + HINT_REMOVE_INCORRECT_STARS;
+            if (stars < 0) {
+                stars = 0;
+            }
+            getPref().edit().putInt("stars", stars).apply();
+            ((TextView)findViewById(R.id.scoreTextView)).setText(Integer.toString(stars));
+
+            clickable = true;
+        }
+    }
+
     private class AnswerClickListener implements RecyclerViewClickListener {
-        private int scorePlus;
         private Question q;
         private RecyclerView recyclerView;
 
-        public AnswerClickListener(int scorePlus, Question q, RecyclerView recyclerView) {
-            this.scorePlus = scorePlus;
+        public AnswerClickListener(Question q, RecyclerView recyclerView) {
             this.q = q;
             this.recyclerView = recyclerView;
         }
@@ -154,9 +206,16 @@ public class MainActivity extends AppCompatActivity {
             }
             toast.show();
 
+            int stars = getPref().getInt("stars", 0);
             if (correct) {
-                getPref().edit().putInt("correctAnswers", scorePlus + 1).apply();
+                stars += CORRECT_REWARD_STARS;
+            } else {
+                stars += INCORRECT_PENALTY_STARS;
+                if (stars < 0) {
+                    stars = 0;
+                }
             }
+            getPref().edit().putInt("stars", stars).apply();
 
             new Handler().postDelayed(new Runnable() {
                 @Override
