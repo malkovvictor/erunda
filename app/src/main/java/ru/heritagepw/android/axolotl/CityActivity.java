@@ -12,9 +12,13 @@ public class CityActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_city);
         tc = new TravelController(getApplicationContext());
+        if (tc.getDest() >= 0) {
+            startActivity(new Intent(this, RoadActivity.class));
+            return;
+        }
 
+        setContentView(R.layout.activity_city);
         ((TextView)findViewById(R.id.poiText)).setText(tc.getCityName(tc.getSource()));
 
         findViewById(R.id.startGameButton).setOnClickListener(new View.OnClickListener() {

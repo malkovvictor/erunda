@@ -1,6 +1,7 @@
 package ru.heritagepw.android.axolotl;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -61,6 +62,16 @@ public class TravelController {
     }
 
     public void arrive() {
+        SharedPreferences sp = mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE);
+
+        int dest = sp.getInt("dest", 1);
+        int to = sp.getInt("to", 1);
+        sp.edit()
+                .putInt("source", dest)
+                .putInt("dest", -1)
+                .putInt("from", to)
+                .putInt("to", -1)
+                .apply();
 
     }
 }

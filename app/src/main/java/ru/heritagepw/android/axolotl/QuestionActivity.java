@@ -287,6 +287,7 @@ public class QuestionActivity extends AppCompatActivity {
             }
             getPref().edit().putInt("stars", stars).apply();
             if (stars >= tc.getDestScore()) {
+                tc.arrive();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -294,18 +295,18 @@ public class QuestionActivity extends AppCompatActivity {
                         startActivity(i);
                     }
                 }, DELAY);
+            } else {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.innerConstraintLayout).setVisibility(View.GONE);
+                        currentQuestion = getRandomQuestion();
+                        updateView(currentQuestion);
+                        findViewById(R.id.innerConstraintLayout).setVisibility(View.VISIBLE);
+                        clickable = true;
+                    }
+                }, DELAY);
             }
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    findViewById(R.id.innerConstraintLayout).setVisibility(View.GONE);
-                    currentQuestion = getRandomQuestion();
-                    updateView(currentQuestion);
-                    findViewById(R.id.innerConstraintLayout).setVisibility(View.VISIBLE);
-                    clickable = true;
-                }
-            }, DELAY);
         }
     }
 
