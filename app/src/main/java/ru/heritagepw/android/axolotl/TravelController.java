@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class TravelController {
-    public static final int STEP = 20;
+    public static final int STEP = 10;
 
     private Context mContext;
     private QuizDatabaseHelper dbh;
@@ -42,13 +42,18 @@ public class TravelController {
         return mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).getInt("to", getSourceScore() + STEP);
     }
 
-    public String getCityView() {
+    public CityPhoto getCityView() {
         SQLiteDatabase db = dbh.getReadableDatabase();
-        Cursor cur = db.rawQuery("select name, photo from cityPOI where city=? order by random() limit 1", new String[] {Integer.toString(getSource())});
+        Cursor cur = db.rawQuery("select * from cityPOI where city=? order by random() limit 1", new String[] {Integer.toString(getSource())});
         if (cur.moveToFirst()) {
-            return cur.getString(cur.getColumnIndex("photo"));
+            return new CityPhoto(
+                    cur.getString(cur.getColumnIndex("photo")),
+                    cur.getString(cur.getColumnIndex("name")),
+                    cur.getString(cur.getColumnIndex("copyrightLink")),
+                    cur.getString(cur.getColumnIndex("copyrightAuthor")),
+                    cur.getString(cur.getColumnIndex("copyrightLicense")));
         }
-        return "";
+        return null;
     }
 
     public void chooseRoad() {
