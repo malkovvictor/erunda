@@ -23,6 +23,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.common.util.ArrayUtils;
 
 import java.util.Random;
 
@@ -152,13 +153,32 @@ public class QuestionActivity extends AppCompatActivity {
         }
     }
 
+    private String makePlaceholders(int len) {
+        if (len < 1) {
+            throw new RuntimeException("No placeholders");
+        } else {
+            StringBuilder sb = new StringBuilder(len * 2 - 1);
+            sb.append("?");
+            for (int i = 1; i < len; i++) {
+                sb.append(",?");
+            }
+            return sb.toString();
+        }
+    }
+
     private Question getRandomQuestion() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Question q = null;
 
         for (int attempt = 0; null == q && attempt < MAX_QUESTION_SELECT_ATTEMPTS; attempt++) {
             q = new Question();
-            Cursor cur = db.rawQuery("select * from questions where id in (select id from questions where type=\"редкое слово\" and askedTimes in (select min(askedTimes) from questions where type=\"редкое слово\") order by random() limit 1);", null);
+            String[] topics = getResources().getStringArray(R.array.topics);
+            String placeholders = makePlaceholders(topics.length);
+
+            topics = ArrayUtils.concat(topics, topics);
+            String query = String.format("select * from questions where id in (select id from questions where type in (%s) and askedTimes in (select min(askedTimes) from questions where type in (%s)) order by random() limit 1);",
+                    placeholders, placeholders);
+            Cursor cur = db.rawQuery(query, topics);
             if (cur.moveToFirst()) {
                 q.text = cur.getString(cur.getColumnIndex(QUESTION_COLUMN_NAME));
                 q.id = cur.getInt(cur.getColumnIndex("id"));

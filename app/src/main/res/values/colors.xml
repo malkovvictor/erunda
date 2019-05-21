@@ -6,4 +6,5 @@
 
     <color name="correct">#77669900</color>
     <color name="incorrect">#77cc0000</color>
+    <color name="cityBackground">#80009688</color>
 </resources>

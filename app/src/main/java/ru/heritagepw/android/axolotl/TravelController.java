@@ -42,18 +42,12 @@ public class TravelController {
         return mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).getInt("to", getSourceScore() + STEP);
     }
 
-    public CityPhoto getCityView() {
-        SQLiteDatabase db = dbh.getReadableDatabase();
-        Cursor cur = db.rawQuery("select * from cityPOI where city=? order by random() limit 1", new String[] {Integer.toString(getSource())});
-        if (cur.moveToFirst()) {
-            return new CityPhoto(
-                    cur.getString(cur.getColumnIndex("photo")),
-                    cur.getString(cur.getColumnIndex("name")),
-                    cur.getString(cur.getColumnIndex("copyrightLink")),
-                    cur.getString(cur.getColumnIndex("copyrightAuthor")),
-                    cur.getString(cur.getColumnIndex("copyrightLicense")));
-        }
-        return null;
+    public CityPhoto getCityViewByCity() {
+        return CityPhoto.loadRandom(dbh.getReadableDatabase(), this);
+    }
+
+    public CityPhoto getCityView(int id, int factId) {
+        return CityPhoto.load(dbh.getReadableDatabase(), this, id, factId);
     }
 
     public void chooseRoad() {
@@ -62,7 +56,11 @@ public class TravelController {
         cur.moveToFirst();
         int cityB = cur.getInt(cur.getColumnIndex("cityB"));
         mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("dest", cityB).apply();
-        int toScore = getSourceScore() + STEP;
+        Integer step = cur.getInt(cur.getColumnIndex("cost"));
+        if (step == null || step == 0) {
+            step = STEP;
+        }
+        int toScore = getSourceScore() + step;
         mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("to", toScore).apply();
     }
 

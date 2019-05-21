@@ -14,6 +14,7 @@ import java.io.IOException;
 
 public class CityActivity extends AppCompatActivity {
     private TravelController tc;
+    private CityPhoto mCityPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,26 +26,10 @@ public class CityActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_city);
-        ((TextView)findViewById(R.id.cityName)).setText(tc.getCityName(tc.getSource()));
-
-        CityPhoto cp = tc.getCityView();
-        if (cp != null) {
-            try {
-                ((ImageView)findViewById(R.id.poiImageView)).setImageDrawable(
-                        Drawable.createFromStream(
-                                getAssets().open(cp.getFilename()),
-                                cp.getFilename()
-                        )
-                );
-                TextView copyright = findViewById(R.id.copyrightTextView);
-                copyright.setText(Html.fromHtml(cp.getCopyright()));
-                copyright.setMovementMethod(LinkMovementMethod.getInstance());
-
-                ((TextView)findViewById(R.id.poiName)).setText(cp.name);
-            } catch (IOException e) {
-                // Don't worry
-            }
+        if (mCityPhoto == null) {
+            mCityPhoto = tc.getCityViewByCity();
         }
+        update();
 
         findViewById(R.id.startGameButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,5 +39,46 @@ public class CityActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+    }
+
+    private void update() {
+        ((TextView)findViewById(R.id.cityName)).setText(tc.getCityName(tc.getSource()));
+        if (mCityPhoto != null) {
+            try {
+                ((ImageView)findViewById(R.id.poiImageView)).setImageDrawable(
+                        Drawable.createFromStream(
+                                getAssets().open(mCityPhoto.getFilename()),
+                                mCityPhoto.getFilename()
+                        )
+                );
+                TextView copyright = findViewById(R.id.copyrightTextView);
+                copyright.setText(Html.fromHtml(mCityPhoto.getCopyright()));
+                copyright.setMovementMethod(LinkMovementMethod.getInstance());
+
+                ((TextView)findViewById(R.id.poiName)).setText(mCityPhoto.name);
+                ((TextView)findViewById(R.id.poiFact)).setText(mCityPhoto.fact);
+            } catch (IOException e) {
+                // Don't worry
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("city_photo", mCityPhoto.id);
+        outState.putInt("fact_id", mCityPhoto.factId);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey("city_photo")) {
+            int id = savedInstanceState.getInt("city_photo");
+            int factId = savedInstanceState.getInt("fact_id");
+            mCityPhoto = tc.getCityView(id, factId);
+
+        }
+        update();
     }
 }

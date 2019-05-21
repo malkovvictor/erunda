@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#80009688"
+    android:background="@color/cityBackground"
     tools:context=".CityActivity">
 
     <ImageView
@@ -17,7 +17,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic[5]" />
+        tools:srcCompat="@tools:sample/backgrounds/scenic[5]"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/cityName"
@@ -25,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="#80009688"
+        android:background="@color/cityBackground"
         android:text=""
         app:layout_constraintStart_toStartOf="@id/poiImageView"
         app:layout_constraintTop_toTopOf="@id/poiImageView" />
@@ -36,11 +37,21 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="0dp"
-        android:background="#80009688"
+        android:background="@color/cityBackground"
         android:text=""
         app:layout_constraintTop_toBottomOf="@id/cityName"
         app:layout_constraintStart_toStartOf="@id/poiImageView"
         />
+
+    <TextView
+        android:id="@+id/poiFact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="0dp"
+        android:background="@color/cityBackground"
+        app:layout_constraintStart_toStartOf="@id/poiImageView"
+        app:layout_constraintTop_toBottomOf="@id/poiName" />
 
     <Button
         android:id="@+id/startGameButton"
@@ -49,7 +60,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="24dp"
-        android:text="Поехали!"
+        android:text="@string/cityGo"
         app:layout_constraintBottom_toBottomOf="@+id/poiImageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -64,7 +75,7 @@
         app:layout_constraintBottom_toTopOf="@+id/startGameButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1"
-        android:background="#80009688"
+        android:background="@color/cityBackground"
         app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
