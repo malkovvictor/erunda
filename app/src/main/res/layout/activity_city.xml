@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="@color/cityBackground"
+        android:background="@color/cityLabelBackground"
         android:text=""
         app:layout_constraintStart_toStartOf="@id/poiImageView"
         app:layout_constraintTop_toTopOf="@id/poiImageView" />
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="0dp"
-        android:background="@color/cityBackground"
+        android:background="@color/cityLabelBackground"
         android:text=""
         app:layout_constraintTop_toBottomOf="@id/cityName"
         app:layout_constraintStart_toStartOf="@id/poiImageView"
@@ -49,7 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="0dp"
-        android:background="@color/cityBackground"
+        android:background="@color/cityLabelBackground"
         app:layout_constraintStart_toStartOf="@id/poiImageView"
         app:layout_constraintTop_toBottomOf="@id/poiName" />
 
@@ -75,7 +75,7 @@
         app:layout_constraintBottom_toTopOf="@+id/startGameButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1"
-        android:background="@color/cityBackground"
+        android:background="@color/cityLabelBackground"
         app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

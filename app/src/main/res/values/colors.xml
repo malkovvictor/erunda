@@ -4,7 +4,11 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
+    <color name="questionBackgroundColor">#99000051</color>
+
     <color name="correct">#77669900</color>
     <color name="incorrect">#77cc0000</color>
-    <color name="cityBackground">#80009688</color>
+    <color name="cityBackground">@color/colorPrimaryDark</color>
+    <color name="cityLabelBackground">@color/colorPrimary</color>
+    <color name="cityBackground2">#80009688</color>
 </resources>
