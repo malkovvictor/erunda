@@ -2,8 +2,13 @@ package ru.heritagepw.android.axolotl;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,7 +29,6 @@ public class RoadActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_road);
         tc = new TravelController(getApplicationContext());
-        TextView v = findViewById(R.id.tempRoadText);
         ImageView iv = findViewById(R.id.roadView);
         RoadView rv = tc.getRoadView();
         iv.setImageDrawable(rv.image);
@@ -32,17 +36,33 @@ public class RoadActivity extends AppCompatActivity {
         int star = getApplicationContext().getSharedPreferences(getApplicationContext().getPackageName() + ".score", Context.MODE_PRIVATE).getInt("stars", tc.getSourceScore());
         ((TextView)findViewById(R.id.scoreTextView2)).setText(Integer.toString(star));
 
-        v.setText(String.format("Едем из города %1$s в город %2$s. Приедем на отметке %3$d!", tc.getCityName(tc.getSource()), tc.getCityName(tc.getDest()), tc.getDestScore()));
+        ((TextView)findViewById(R.id.cityFrom)).setText(String.format(
+                "%s\n%d%s",
+                tc.getCityName(tc.getSource()),
+                tc.getSourceScore(),
+                getResources().getString(R.string.star)
+        ));
+
+        ((TextView)findViewById(R.id.cityTo)).setText(String.format(
+                "%s\n%d%s",
+                tc.getCityName(tc.getDest()),
+                tc.getDestScore(),
+                getResources().getString(R.string.star)
+        ));
 
         Button b = findViewById(R.id.roadButton);
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(RoadActivity.this, QuestionActivity.class);
-                i.putExtra("current_question", currentQuestionId);
-                startActivity(i);
-            }
-        });
+        MyClickListener listener = new MyClickListener();
+        b.setOnClickListener(listener);
+        iv.setOnClickListener(listener);
+    }
+
+    private class MyClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Intent i = new Intent(RoadActivity.this, QuestionActivity.class);
+            i.putExtra("current_question", currentQuestionId);
+            startActivity(i);
+        }
     }
 
     @Override

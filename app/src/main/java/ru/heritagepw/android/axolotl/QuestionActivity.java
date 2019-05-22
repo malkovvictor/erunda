@@ -78,6 +78,12 @@ public class QuestionActivity extends AppCompatActivity {
         findViewById(R.id.mapButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                synchronized (QuestionActivity.this) {
+                    if (!clickable) {
+                        return;
+                    }
+                    clickable = false;
+                }
                 Intent i = new Intent(QuestionActivity.this, RoadActivity.class);
                 i.putExtra("current_question", currentQuestion.id);
                 startActivity(i);
