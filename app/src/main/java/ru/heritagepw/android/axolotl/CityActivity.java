@@ -66,8 +66,10 @@ public class CityActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("city_photo", mCityPhoto.id);
-        outState.putInt("fact_id", mCityPhoto.factId);
+        if (mCityPhoto != null) {
+            outState.putInt("city_photo", mCityPhoto.id);
+            outState.putInt("fact_id", mCityPhoto.factId);
+        }
     }
 
     @Override

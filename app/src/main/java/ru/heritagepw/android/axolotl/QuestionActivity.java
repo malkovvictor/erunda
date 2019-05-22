@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,12 +36,12 @@ public class QuestionActivity extends AppCompatActivity {
     private AdView mAdView;
 
     private static final String QUESTION_COLUMN_NAME = "text";
-    private static final int DELAY = 2000;
-    private static final int TRANSITION_DURATION = 400;
+    private static int DELAY;
+    private static int TRANSITION_DURATION;
 
-    private static final int CORRECT_REWARD_STARS = 3;
-    private static final int INCORRECT_PENALTY_STARS = -4;
-    private static final int HINT_REMOVE_INCORRECT_STARS = -1;
+    private static int CORRECT_REWARD_STARS;
+    private static int INCORRECT_PENALTY_STARS;
+    private static int HINT_REMOVE_INCORRECT_STARS;
 
     private boolean clickable = true;
     private boolean hintUsed = false;
@@ -48,10 +49,19 @@ public class QuestionActivity extends AppCompatActivity {
     private Question currentQuestion;
     private TravelController tc;
 
+    private void initConstant() {
+        DELAY = getResources().getInteger(R.integer.delay);
+        TRANSITION_DURATION = getResources().getInteger(R.integer.transition_duration);
+        CORRECT_REWARD_STARS = getResources().getInteger(R.integer.reward);
+        INCORRECT_PENALTY_STARS = getResources().getInteger(R.integer.penalty);
+        HINT_REMOVE_INCORRECT_STARS = getResources().getInteger(R.integer.hint_cost);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_question);
+        initConstant();
 
         MobileAds.initialize(this, getString(R.string.addmobAppId));
         mAdView = findViewById(R.id.adView);
@@ -100,10 +110,17 @@ public class QuestionActivity extends AppCompatActivity {
         // варианты ответа
         final RecyclerView recyclerView = findViewById(R.id.answerVariantsView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
 
         RecyclerViewClickListener listener = new AnswerClickListener(q, recyclerView);
         adapter = new AnswerListAdapter(q.answers, listener);
         recyclerView.setAdapter(adapter);
+
+        // фон
+        ((ImageView)findViewById(R.id.imageView2)).setImageDrawable(tc.getRoadView().image);
+        ((ImageView)findViewById(R.id.imageView2)).setScaleType(ImageView.ScaleType.CENTER_CROP);
+        //findViewById(R.id.imageView2).setVisibility(View.INVISIBLE);
+
 
         findViewById(R.id.hintButton).setOnClickListener(new HintButtonClickListener(q));
         hintUsed = false;
@@ -131,7 +148,6 @@ public class QuestionActivity extends AppCompatActivity {
                     }
                     ii++;
                 } while (cur2.moveToNext());
-                cur2.close();
                 if (q.right < 0) {
                     // ни один из ответов не помечен как правильный
                     Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
@@ -142,10 +158,12 @@ public class QuestionActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
                 q = null;
             }
-            cur.close();
+            cur2.close();
         } else {
             q = null;
         }
+        cur.close();
+        //db.close();
         if (q == null) {
             return getRandomQuestion();
         } else {
@@ -196,7 +214,6 @@ public class QuestionActivity extends AppCompatActivity {
                         }
                         ii++;
                     } while (cur2.moveToNext());
-                    cur2.close();
                     if (q.right < 0) {
                         // ни один из ответов не помечен как правильный
                         Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
@@ -207,15 +224,17 @@ public class QuestionActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
                     q = null;
                 }
+                cur2.close();
                 cur.close();
             } else {
+                cur.close();
                 throw new RuntimeException("No questions found");
             }
         }
         if (q == null) {
             throw new RuntimeException("Database error, cannot find questions with answers");
         }
-        db.close();
+        //db.close();
         return q;
     }
 

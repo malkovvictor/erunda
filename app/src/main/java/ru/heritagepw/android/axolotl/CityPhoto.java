@@ -7,15 +7,17 @@ public class CityPhoto {
     int id;
     int factId = -1;
     String filename;
+    String copyrightTitle;
     String copyrightLink;
     String copyrightAuthor;
     String copyrightLicense;
     String name;
     String fact;
 
-    public CityPhoto(Integer id, String filename, String name, String copyrightLink, String copyrightAuthor, String copyrightLicense) {
+    public CityPhoto(Integer id, String filename, String name, String copyrightTitle,  String copyrightLink, String copyrightAuthor, String copyrightLicense) {
         this.id = id;
         this.filename = filename;
+        this.copyrightTitle = copyrightTitle;
         this.copyrightLink = copyrightLink;
         this.copyrightAuthor = copyrightAuthor;
         this.copyrightLicense = copyrightLicense;
@@ -27,6 +29,7 @@ public class CityPhoto {
                 cur.getInt(cur.getColumnIndex("id")),
                 cur.getString(cur.getColumnIndex("photo")),
                 cur.getString(cur.getColumnIndex("name")),
+                cur.getString(cur.getColumnIndex("copyrightTitle")),
                 cur.getString(cur.getColumnIndex("copyrightLink")),
                 cur.getString(cur.getColumnIndex("copyrightAuthor")),
                 cur.getString(cur.getColumnIndex("copyrightLicense"))
@@ -38,12 +41,14 @@ public class CityPhoto {
         CityPhoto res = null;
         if (cur.moveToFirst()) {
             res = new CityPhoto(cur);
-            Cursor cur2 = db.rawQuery("select * from poiFact where poi=?", new String[] {Integer.toString(res.id)});
+            Cursor cur2 = db.rawQuery("select * from poiFact where poi=? order by random() limit 1", new String[] {Integer.toString(res.id)});
             if (cur2.moveToFirst()) {
                 res.fact = cur2.getString(cur2.getColumnIndex("fact"));
                 res.factId = cur2.getInt(cur2.getColumnIndex("id"));
             }
+            cur2.close();
         }
+        cur.close();
         return res;
     }
 
@@ -57,12 +62,36 @@ public class CityPhoto {
                 res.fact = cur2.getString(cur2.getColumnIndex("fact"));
                 res.factId = cur2.getInt(cur2.getColumnIndex("id"));
             }
+            cur2.close();
         }
+        cur.close();
         return res;
     }
 
     public String getCopyright() {
-        return String.format("<a href=\"%s\">Image</a> © %s / %s", copyrightLink, copyrightAuthor, copyrightLicense);
+        if (copyrightTitle == null || copyrightTitle.isEmpty()) {
+            copyrightTitle = "";
+        }
+        if (copyrightAuthor == null || copyrightAuthor.isEmpty()) {
+            return copyrightTitle;
+        }
+
+        if (copyrightLink == null || copyrightLink.isEmpty()) {
+            if (copyrightLicense == null || copyrightLicense.isEmpty()) {
+                return String.format("%s © %s", copyrightTitle, copyrightAuthor);
+            } else {
+                return String.format("%s © %s / %s", copyrightTitle, copyrightAuthor, copyrightLicense);
+            }
+        } else {
+            if (copyrightTitle.isEmpty()) {
+                copyrightTitle = "Photo";
+            }
+            if (copyrightLicense == null || copyrightLicense.isEmpty()) {
+                return String.format("<a href=\"%s\">%s</a> © %s", copyrightLink, copyrightTitle, copyrightAuthor);
+            } else {
+                return String.format("<a href=\"%s\">%s</a> © %s / %s", copyrightLink, copyrightTitle, copyrightAuthor, copyrightLicense);
+            }
+        }
     }
 
     public String getFilename() {

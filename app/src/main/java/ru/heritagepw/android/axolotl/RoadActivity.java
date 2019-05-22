@@ -1,14 +1,17 @@
 package ru.heritagepw.android.axolotl;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class RoadActivity extends AppCompatActivity {
     private int currentQuestionId;
+    private  TravelController tc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,12 +23,18 @@ public class RoadActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_road);
-        TravelController tc = new TravelController(getApplicationContext());
+        tc = new TravelController(getApplicationContext());
         TextView v = findViewById(R.id.tempRoadText);
+        ImageView iv = findViewById(R.id.roadView);
+        RoadView rv = tc.getRoadView();
+        iv.setImageDrawable(rv.image);
+        ((TextView)findViewById(R.id.roadPhotoCopyright)).setText(rv.credits);
+        int star = getApplicationContext().getSharedPreferences(getApplicationContext().getPackageName() + ".score", Context.MODE_PRIVATE).getInt("stars", tc.getSourceScore());
+        ((TextView)findViewById(R.id.scoreTextView2)).setText(Integer.toString(star));
 
         v.setText(String.format("Едем из города %1$s в город %2$s. Приедем на отметке %3$d!", tc.getCityName(tc.getSource()), tc.getCityName(tc.getDest()), tc.getDestScore()));
 
-        Button b = findViewById(R.id.roadbutton);
+        Button b = findViewById(R.id.roadButton);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

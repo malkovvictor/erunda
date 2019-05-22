@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">Аксолотль</string>
-    <string-array name="topics">
-        <item>редкое слово</item>
-        <item>фразеологизм</item>
-    </string-array>
 
     <string name="correct">Верно!</string>
     <string name="incorrect">Неправильно!</string>
@@ -12,4 +8,6 @@
     <string name="solved">Отгадано</string>
     <string name="title_activity_city">CityActivity</string>
     <string name="cityGo">Поехали дальше!</string>
+    <string name="roadGo">Поехали!</string>
+    <string name="star">⭐</string>
 </resources>

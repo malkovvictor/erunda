@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cityBackground"
     tools:context=".RoadActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/roadView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -23,21 +24,65 @@
         android:id="@+id/tempRoadText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="@id/imageView"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
-        app:layout_constraintStart_toStartOf="@+id/imageView"
-        app:layout_constraintTop_toTopOf="@id/imageView" />
+        app:layout_constraintBottom_toBottomOf="@id/roadView"
+        app:layout_constraintEnd_toEndOf="@+id/roadView"
+        app:layout_constraintStart_toStartOf="@+id/roadView"
+        app:layout_constraintTop_toTopOf="@id/roadView" />
 
     <Button
-        android:id="@+id/roadbutton"
+        android:id="@+id/roadButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="24dp"
-        android:text="Поехали!"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
+        android:text="@string/roadGo"
+        app:layout_constraintBottom_toBottomOf="@+id/roadView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/roadPhotoCopyright"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/roadView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        android:background="@color/cityLabelBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/cityBackground"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/scoreTextView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingStart="8dp"
+            android:text=""
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/star2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/cityBackground"
+            android:text="@string/star"
+            android:textAllCaps="false"
+            android:textColor="@color/starColor"
+            android:textSize="30sp" />
+
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>
