@@ -1,4 +1,4 @@
-package ru.heritagepw.android.axolotl;
+package ru.victormalkov.android.axolotl;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("ru.heritagepw.android.axolotl", appContext.getPackageName());
+        assertEquals("ru.victormalkov.android.axolotl", appContext.getPackageName());
     }
 }

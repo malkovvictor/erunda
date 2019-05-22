@@ -1,4 +1,4 @@
-package ru.heritagepw.android.axolotl;
+package ru.victormalkov.android.axolotl;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
