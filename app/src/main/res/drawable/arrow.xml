@@ -13,7 +13,7 @@
         android:strokeLineCap="round"
         android:fillColor="@android:color/transparent" />
     <path
-        android:pathData="M500 970 m 5 5 l0 -50 l-50 50"
+        android:pathData="M500 970 m 10 10 l-25 -50 l-30 45"
         android:strokeColor="@color/pathColor"
         android:fillColor="@color/pathColor"
         />

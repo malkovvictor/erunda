@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class QuizDatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "questions.db";
-    private static final int DB_VERSION = 41;
+    private static final int DB_VERSION = 43;
     private final Context myContext;
 
     public QuizDatabaseHelper(Context context) {
