@@ -7,9 +7,10 @@
     android:height="50dp">
 
     <path
+        android:name="mycurve"
         android:pathData="M500 30 Q900 250 500 500 T500 970"
         android:strokeColor="@color/pathColor"
-        android:strokeWidth="10"
+        android:strokeWidth="20"
         android:strokeLineCap="round"
         android:fillColor="@android:color/transparent" />
     <path

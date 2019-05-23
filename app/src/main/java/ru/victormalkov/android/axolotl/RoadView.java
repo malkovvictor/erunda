@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 public class RoadView {
     Drawable image;
     String credits;
+    String symbol;
 
     public RoadView(Drawable image, String credits) {
         this.image = image;
@@ -13,5 +14,6 @@ public class RoadView {
         } else {
             this.credits = String.format("Image by %s", credits);
         }
+        this.symbol = symbol;
     }
 }

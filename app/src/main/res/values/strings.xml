@@ -10,4 +10,10 @@
     <string name="cityGo">Поехали дальше!</string>
     <string name="roadGo">Поехали!</string>
     <string name="star">⭐</string>
+
+    <string name="train">🚅</string>
+    <string name="ship">🚢</string>
+    <string name="bus">🚌</string>
+
+    <string name="mapButtonText">@string/train</string>
 </resources>

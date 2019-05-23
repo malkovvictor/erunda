@@ -125,8 +125,8 @@ public class QuestionActivity extends AppCompatActivity {
         // фон
         ((ImageView)findViewById(R.id.imageView2)).setImageDrawable(tc.getRoadView().image);
         ((ImageView)findViewById(R.id.imageView2)).setScaleType(ImageView.ScaleType.CENTER_CROP);
-        //findViewById(R.id.imageView2).setVisibility(View.INVISIBLE);
 
+        ((TextView) findViewById(R.id.mapButton)).setText(tc.getRoadSymbol());
 
         findViewById(R.id.hintButton).setOnClickListener(new HintButtonClickListener(q));
         hintUsed = false;

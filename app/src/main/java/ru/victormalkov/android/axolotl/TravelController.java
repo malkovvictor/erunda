@@ -9,6 +9,11 @@ import android.graphics.drawable.Drawable;
 import java.io.IOException;
 
 public class TravelController {
+    public static final int ROAD_TYPE_TRAIN = 1;
+    public static final int ROAD_TYPE_SHIP = 2;
+    public static final int ROAD_TYPE_BUS = 3;
+
+
     private int defaultStep;
 
     private Context mContext;
@@ -88,6 +93,16 @@ public class TravelController {
         return getRoadView(this.getTerrain());
     }
 
+    public String getRoadSymbol() {
+        int roadType = mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).getInt("roadType", 1);
+        switch (roadType) {
+            case ROAD_TYPE_TRAIN: return mContext.getString(R.string.train);
+            case ROAD_TYPE_SHIP: return mContext.getString(R.string.ship);
+            case ROAD_TYPE_BUS: return mContext.getString(R.string.bus);
+            default: return mContext.getString(R.string.train);
+        }
+    }
+
     public void chooseRoad() {
         SQLiteDatabase db = dbh.getReadableDatabase();
         Cursor cur = db.rawQuery("select * from roads where cityA=? order by random() limit 1", new String[] {Integer.toString(getSource())});
@@ -96,6 +111,8 @@ public class TravelController {
         mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("dest", cityB).apply();
         int terrain = cur.getInt(cur.getColumnIndex("terrainType"));
         mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("terrain", terrain).apply();
+        int roadType = cur.getInt(cur.getColumnIndex("roadType"));
+        mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("roadType", roadType).apply();
         Integer step = cur.getInt(cur.getColumnIndex("cost"));
         if (step == null || step == 0) {
             step = defaultStep;
