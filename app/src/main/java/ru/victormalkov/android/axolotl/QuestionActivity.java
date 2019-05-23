@@ -26,10 +26,13 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.util.ArrayUtils;
 
+import java.util.ArrayList;
 import java.util.Random;
+
 
 public class QuestionActivity extends AppCompatActivity {
     public static final int MAX_QUESTION_SELECT_ATTEMPTS = 5;
+    public static final String TAG = "QuestionActivity";
     private AnswerListAdapter adapter;
     private QuizDatabaseHelper dbHelper;
 
@@ -86,18 +89,25 @@ public class QuestionActivity extends AppCompatActivity {
                 }
                 Intent i = new Intent(QuestionActivity.this, RoadActivity.class);
                 i.putExtra("current_question", currentQuestion.id);
+                i.putIntegerArrayListExtra("answers", currentQuestion.answersId);
+                i.putExtra("hinted", hintUsed);
                 startActivity(i);
             }
         });
 
         if (savedInstanceState != null) {
             int id = savedInstanceState.getInt("current_question", -1);
-            currentQuestion = getQuestion(id);
+            ArrayList<Integer> answersId = savedInstanceState.getIntegerArrayList("answers");
+            hintUsed = savedInstanceState.getBoolean("hinted", false);
+            currentQuestion = getQuestion(id, answersId);
         } else if (getIntent() != null && getIntent().hasExtra("current_question")) {
             int id = getIntent().getIntExtra("current_question", -1);
-            currentQuestion = getQuestion(id);
+            ArrayList<Integer> answersId = getIntent().getIntegerArrayListExtra("answers");
+            hintUsed = getIntent().getBooleanExtra("hinted", false);
+            currentQuestion = getQuestion(id, answersId);
         } else {
             currentQuestion = getRandomQuestion();
+            hintUsed = false;
         }
 
         updateView(currentQuestion);
@@ -129,10 +139,9 @@ public class QuestionActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.mapButton)).setText(tc.getRoadSymbol());
 
         findViewById(R.id.hintButton).setOnClickListener(new HintButtonClickListener(q));
-        hintUsed = false;
     }
 
-    private Question getQuestion(int id) {
+    private Question getQuestion(int id, ArrayList<Integer> answersId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Question q = new Question();
 
@@ -143,28 +152,62 @@ public class QuestionActivity extends AppCompatActivity {
             String qid = Integer.toString(cur.getInt(cur.getColumnIndex("id")));
             db.execSQL("update questions set askedTimes = ? where id = ?", new Object[]{cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("id"))});
             Log.v("Question", "preparing question #" + qid);
-            Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[]{qid});
-            if (cur2.moveToFirst()) {
-                int ii = 0;
-                do {
-                    q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
-                    boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
-                    if (isRight) {
-                        q.right = ii;
+            if (answersId == null) {
+                Cursor cur2 = db.rawQuery("select rowid, * from answers where question = ? order by random()", new String[]{qid});
+                if (cur2.moveToFirst()) {
+                    int ii = 0;
+                    do {
+                        q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
+                        q.answersId.add(cur2.getInt(cur2.getColumnIndex("rowid")));
+                        boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
+                        if (isRight) {
+                            q.right = ii;
+                        }
+                        ii++;
+                    } while (cur2.moveToNext());
+                    if (q.right < 0) {
+                        // ни один из ответов не помечен как правильный
+                        Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT).show();
+                        q = null;
                     }
-                    ii++;
-                } while (cur2.moveToNext());
-                if (q.right < 0) {
-                    // ни один из ответов не помечен как правильный
-                    Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
+                } else {
+                    // на вопрос нет ни одного ответа
+                    Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT).show();
                     q = null;
                 }
+                cur2.close();
             } else {
-                // на вопрос нет ни одного ответа
-                Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
-                q = null;
+                Log.v(TAG, "load question with given answer list");
+                String placeholders = makePlaceholders(answersId.size());
+                String query = String.format("select rowid, * from answers where rowid in (%s)", placeholders);
+                String[] arr = new String[answersId.size()];
+                for (int i = 0; i < answersId.size(); i++) {
+                    arr[i] = Integer.toString(answersId.get(i));
+                }
+                Cursor cur2 = db.rawQuery(query, arr);
+                if (cur2.moveToFirst()) {
+                    int ii = 0;
+                    do {
+                        q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
+                        q.answersId.add(cur2.getInt(cur2.getColumnIndex("rowid")));
+                        boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
+                        if (isRight) {
+                            q.right = ii;
+                        }
+                        ii++;
+                    } while (cur2.moveToNext());
+                    if (q.right < 0) {
+                        // ни один из ответов не помечен как правильный
+                        Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT).show();
+                        q = null;
+                    }
+                } else {
+                    // на вопрос нет ни одного ответа
+                    Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT).show();
+                    q = null;
+                }
+                cur2.close();
             }
-            cur2.close();
         } else {
             q = null;
         }
@@ -209,11 +252,12 @@ public class QuestionActivity extends AppCompatActivity {
                 String qid = Integer.toString(q.id);
                 db.execSQL("update questions set askedTimes = ? where id = ?", new Object[]{cur.getInt(cur.getColumnIndex("askedTimes")) + 1, cur.getInt(cur.getColumnIndex("id"))});
                 Log.v("Question", "preparing question #" + qid);
-                Cursor cur2 = db.rawQuery("select * from answers where question = ? order by random()", new String[]{qid});
+                Cursor cur2 = db.rawQuery("select rowid, * from answers where question = ? order by random()", new String[]{qid});
                 if (cur2.moveToFirst()) {
                     int ii = 0;
                     do {
                         q.answers.add(cur2.getString(cur2.getColumnIndex("text")));
+                        q.answersId.add(cur2.getInt(cur2.getColumnIndex("rowid")));
                         boolean isRight = cur2.getInt(cur2.getColumnIndex("isRight")) != 0;
                         if (isRight) {
                             q.right = ii;
@@ -222,12 +266,12 @@ public class QuestionActivity extends AppCompatActivity {
                     } while (cur2.moveToNext());
                     if (q.right < 0) {
                         // ни один из ответов не помечен как правильный
-                        Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
+                        Toast.makeText(getApplicationContext(), "Ошибка базы (тип 1), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT).show();
                         q = null;
                     }
                 } else {
                     // на вопрос нет ни одного ответа
-                    Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT);
+                    Toast.makeText(getApplicationContext(), "Ошибка базы (тип 2), пропускаем вопрос #" + qid, Toast.LENGTH_SHORT).show();
                     q = null;
                 }
                 cur2.close();
@@ -274,6 +318,7 @@ public class QuestionActivity extends AppCompatActivity {
                 hint++;
             }
             q.answers.remove(hint);
+            q.answersId.remove(hint);
             if (hint < q.right) {
                 q.right--;
             }
@@ -294,7 +339,7 @@ public class QuestionActivity extends AppCompatActivity {
         private Question q;
         private RecyclerView recyclerView;
 
-        public AnswerClickListener(Question q, RecyclerView recyclerView) {
+        AnswerClickListener(Question q, RecyclerView recyclerView) {
             this.q = q;
             this.recyclerView = recyclerView;
         }
@@ -337,6 +382,8 @@ public class QuestionActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Intent i = new Intent(QuestionActivity.this, CityActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        QuestionActivity.this.finish();
                         startActivity(i);
                     }
                 }, DELAY);
@@ -346,6 +393,7 @@ public class QuestionActivity extends AppCompatActivity {
                     public void run() {
                         findViewById(R.id.innerConstraintLayout).setVisibility(View.GONE);
                         currentQuestion = getRandomQuestion();
+                        hintUsed = false;
                         updateView(currentQuestion);
                         findViewById(R.id.innerConstraintLayout).setVisibility(View.VISIBLE);
                         clickable = true;
@@ -363,13 +411,25 @@ public class QuestionActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("current_question", currentQuestion.id);
+        outState.putIntegerArrayList("answers", currentQuestion.answersId);
+        outState.putBoolean("hinted", hintUsed);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v(TAG, "in onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
-        int id = savedInstanceState.getInt("current_question", -1);
-        currentQuestion = getQuestion(id);
-        updateView(currentQuestion);
+        clickable = true;
+//        int id = savedInstanceState.getInt("current_question", -1);
+//        ArrayList<Integer> answersId = savedInstanceState.getIntegerArrayList("answers");
+//        currentQuestion = getQuestion(id, answersId);
+//        hintUsed = savedInstanceState.getBoolean("hinted", false);
+//        updateView(currentQuestion);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        clickable = true;
     }
 }

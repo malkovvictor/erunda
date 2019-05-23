@@ -7,5 +7,7 @@ class Question {
     int id;
     String text;
     List<String> answers = new ArrayList<>();
+    ArrayList<Integer> answersId = new ArrayList<>();
+
     int right = -1;
 }

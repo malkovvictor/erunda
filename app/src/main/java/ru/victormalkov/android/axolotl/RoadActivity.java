@@ -15,17 +15,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class RoadActivity extends AppCompatActivity {
     private int currentQuestionId;
-    private  TravelController tc;
+    private TravelController tc;
+    private ArrayList<Integer> answers = null;
+    private boolean hinted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             currentQuestionId = savedInstanceState.getInt("current_question", -1);
+            if (currentQuestionId >= 0) {
+                answers = savedInstanceState.getIntegerArrayList("answers");
+                hinted = savedInstanceState.getBoolean("hinted");
+            }
         } else if (getIntent()!= null){
             currentQuestionId = getIntent().getIntExtra("current_question", -1);
+            if (currentQuestionId >= 0) {
+                answers = getIntent().getIntegerArrayListExtra("answers");
+                hinted = getIntent().getBooleanExtra("hinted", false);
+            }
         }
 
         setContentView(R.layout.activity_road);
@@ -62,6 +74,10 @@ public class RoadActivity extends AppCompatActivity {
         public void onClick(View v) {
             Intent i = new Intent(RoadActivity.this, QuestionActivity.class);
             i.putExtra("current_question", currentQuestionId);
+            i.putExtra("hinted", hinted);
+            i.putIntegerArrayListExtra("answers", answers);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            RoadActivity.this.finish();
             startActivity(i);
         }
     }
@@ -70,11 +86,13 @@ public class RoadActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("current_question", currentQuestionId);
+        outState.putIntegerArrayList("answers", answers);
+        outState.putBoolean("hinted", hinted);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        currentQuestionId = savedInstanceState.getInt("current_question", -1);
+//        currentQuestionId = savedInstanceState.getInt("current_question", -1);
     }
 }

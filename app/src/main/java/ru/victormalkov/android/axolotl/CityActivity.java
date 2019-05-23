@@ -21,7 +21,10 @@ public class CityActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         tc = new TravelController(getApplicationContext());
         if (tc.getDest() >= 0) {
-            startActivity(new Intent(this, RoadActivity.class));
+            Intent i = new Intent(this, RoadActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            this.finish();
+            startActivity(i);
             return;
         }
 
@@ -36,6 +39,8 @@ public class CityActivity extends AppCompatActivity {
             public void onClick(View v) {
                 tc.chooseRoad();
                 Intent i = new Intent(CityActivity.this, RoadActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                CityActivity.this.finish();
                 startActivity(i);
             }
         });

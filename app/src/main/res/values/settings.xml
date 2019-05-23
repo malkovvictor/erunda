@@ -6,7 +6,7 @@
 
     <integer name="reward">4</integer>
     <integer name="penalty">-5</integer>
-    <integer name="hint_cost">1</integer>
+    <integer name="hint_cost">-1</integer>
 
     <string-array name="topics">
         <item>редкое слово</item>
