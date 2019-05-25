@@ -1,19 +1,15 @@
 package ru.victormalkov.android.axolotl;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Path;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.view.animation.PathInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -41,11 +37,15 @@ public class RoadActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_road);
-        tc = new TravelController(getApplicationContext());
+        tc = TravelController.getInstance(getApplicationContext());
         ImageView iv = findViewById(R.id.roadView);
-        RoadView rv = tc.getRoadView();
+        RoadImage rv = tc.getRoadView();
         iv.setImageDrawable(rv.image);
-        ((TextView)findViewById(R.id.roadPhotoCopyright)).setText(rv.credits);
+
+        TextView roadPhotoCopyright = findViewById(R.id.roadPhotoCopyright);
+        roadPhotoCopyright.setText(Html.fromHtml(rv.credits));
+        roadPhotoCopyright.setMovementMethod(LinkMovementMethod.getInstance());
+
         int star = getApplicationContext().getSharedPreferences(getApplicationContext().getPackageName() + ".score", Context.MODE_PRIVATE).getInt("stars", tc.getSourceScore());
         ((TextView)findViewById(R.id.scoreTextView2)).setText(Integer.toString(star));
 

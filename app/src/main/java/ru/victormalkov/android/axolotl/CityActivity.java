@@ -19,7 +19,7 @@ public class CityActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tc = new TravelController(getApplicationContext());
+        tc = TravelController.getInstance(getApplicationContext());
         if (tc.getDest() >= 0) {
             Intent i = new Intent(this, RoadActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

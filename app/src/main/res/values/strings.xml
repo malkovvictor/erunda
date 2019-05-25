@@ -14,6 +14,8 @@
     <string name="train">🚅</string>
     <string name="ship">🚢</string>
     <string name="bus">🚌</string>
+    <string name="deer">🦌</string>
+    <string name="airplane">🛧</string>
 
     <string name="mapButtonText">@string/train</string>
 </resources>

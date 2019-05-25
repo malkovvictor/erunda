@@ -14,10 +14,19 @@ import android.util.Log;
 
 public class QuizDatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "questions.db";
-    private static final int DB_VERSION = 44;
+    private static final int DB_VERSION = 53;
     private final Context myContext;
 
-    public QuizDatabaseHelper(Context context) {
+    private static QuizDatabaseHelper mInstance = null;
+
+    public static QuizDatabaseHelper getInstance(Context context) {
+        if (mInstance == null) {
+            mInstance = new QuizDatabaseHelper(context);
+        }
+        return mInstance;
+    }
+
+    private QuizDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.myContext = context;
     }

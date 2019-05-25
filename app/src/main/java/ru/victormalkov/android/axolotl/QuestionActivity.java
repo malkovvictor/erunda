@@ -74,8 +74,8 @@ public class QuestionActivity extends AppCompatActivity {
                 .build();
         mAdView.loadAd(adRequest);
 
-        dbHelper = new QuizDatabaseHelper(getApplicationContext());
-        tc = new TravelController(getApplicationContext());
+        dbHelper = QuizDatabaseHelper.getInstance(getApplicationContext());
+        tc = TravelController.getInstance(getApplicationContext());
 
         ((ViewGroup) findViewById(R.id.constraintLayout)).getLayoutTransition().setDuration(TRANSITION_DURATION);
         findViewById(R.id.mapButton).setOnClickListener(new View.OnClickListener() {

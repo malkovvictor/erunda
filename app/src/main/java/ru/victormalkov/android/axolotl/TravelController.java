@@ -12,6 +12,8 @@ public class TravelController {
     public static final int ROAD_TYPE_TRAIN = 1;
     public static final int ROAD_TYPE_SHIP = 2;
     public static final int ROAD_TYPE_BUS = 3;
+    public static final int ROAD_TYPE_DEER = 4;
+    public static final int ROAD_TYPE_AIRPLANE = 5;
 
 
     private int defaultStep;
@@ -19,10 +21,18 @@ public class TravelController {
     private Context mContext;
     private QuizDatabaseHelper dbh;
 
+    private static TravelController mInstance = null;
 
-    public TravelController(Context context) {
+    public static TravelController getInstance(Context context) {
+        if (mInstance == null) {
+            mInstance = new TravelController(context);
+        }
+        return mInstance;
+    }
+
+    private TravelController(Context context) {
         mContext = context;
-        dbh = new QuizDatabaseHelper(context);
+        dbh = QuizDatabaseHelper.getInstance(context);
         defaultStep = mContext.getResources().getInteger(R.integer.default_step);
     }
 
@@ -66,7 +76,7 @@ public class TravelController {
         return CityPhoto.load(dbh.getReadableDatabase(), this, id, factId);
     }
 
-    public RoadView getRoadView(int id) {
+    public RoadImage getRoadView(int id) {
         SQLiteDatabase db = dbh.getReadableDatabase();
         Cursor cur = db.rawQuery("select * from terrain where id=?", new String[] {Integer.toString(id)});
         if (cur.moveToFirst()) {
@@ -83,13 +93,13 @@ public class TravelController {
                 e.printStackTrace();
             }
             cur.close();
-            return new RoadView(d, credits);
+            return new RoadImage(d, credits);
         }
         cur.close();
         return null;
     }
 
-    public RoadView getRoadView() {
+    public RoadImage getRoadView() {
         return getRoadView(this.getTerrain());
     }
 
@@ -98,7 +108,9 @@ public class TravelController {
         switch (roadType) {
             case ROAD_TYPE_TRAIN: return mContext.getString(R.string.train);
             case ROAD_TYPE_SHIP: return mContext.getString(R.string.ship);
+            case ROAD_TYPE_DEER: return mContext.getString(R.string.deer);
             case ROAD_TYPE_BUS: return mContext.getString(R.string.bus);
+            case ROAD_TYPE_AIRPLANE: return mContext.getString(R.string.airplane);
             default: return mContext.getString(R.string.train);
         }
     }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="default_step">10</integer>
+    <integer name="default_step">100</integer>
     <integer name="delay">2000</integer>
     <integer name="transition_duration">400</integer>
 
-    <integer name="reward">4</integer>
-    <integer name="penalty">-5</integer>
+    <integer name="reward">50</integer>
+    <integer name="penalty">-3</integer>
     <integer name="hint_cost">-1</integer>
 
     <string-array name="topics">
