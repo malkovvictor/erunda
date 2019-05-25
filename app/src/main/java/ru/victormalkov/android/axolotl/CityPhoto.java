@@ -12,7 +12,7 @@ public class CityPhoto {
     String copyrightAuthor;
     String copyrightLicense;
     String name;
-    String fact;
+    String fact = null;
 
     public CityPhoto(Integer id, String filename, String name, String copyrightTitle,  String copyrightLink, String copyrightAuthor, String copyrightLicense) {
         this.id = id;
