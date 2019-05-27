@@ -37,6 +37,7 @@ public class QuizDatabaseHelper extends SQLiteOpenHelper {
         Log.v("DB Create", "begin copy database");
         InputStream mInput = myContext.getAssets().open(DB_NAME);
         Log.v("DB Create", myContext.getDatabasePath(DB_NAME).getPath());
+        myContext.getDatabasePath(DB_NAME).getParentFile().mkdirs();
         OutputStream mOutput = new FileOutputStream(myContext.getDatabasePath(DB_NAME).getPath());
         byte[] mBuffer = new byte[2024];
         int mLength;
