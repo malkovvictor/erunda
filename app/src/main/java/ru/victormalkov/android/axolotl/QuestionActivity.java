@@ -179,7 +179,7 @@ public class QuestionActivity extends AppCompatActivity {
             } else {
                 Log.v(TAG, "load question with given answer list");
                 String placeholders = makePlaceholders(answersId.size());
-                String query = String.format("select rowid, * from answers where rowid in (%s)", placeholders);
+                String query = String.format("select rowid, * from answers where rowid in (%s) order by random()", placeholders);
                 String[] arr = new String[answersId.size()];
                 for (int i = 0; i < answersId.size(); i++) {
                     arr[i] = Integer.toString(answersId.get(i));
