@@ -18,6 +18,7 @@ public class RoadActivity extends AppCompatActivity {
     private TravelController tc;
     private ArrayList<Integer> answers = null;
     private boolean hinted = false;
+    private boolean clickable = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class RoadActivity extends AppCompatActivity {
 
         Button b = findViewById(R.id.roadButton);
         MyClickListener listener = new MyClickListener();
+        clickable = true;
         b.setOnClickListener(listener);
         iv.setOnClickListener(listener);
     }
@@ -72,6 +74,10 @@ public class RoadActivity extends AppCompatActivity {
     private class MyClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            synchronized (RoadActivity.this) {
+                if (!clickable) return;
+                clickable = false;
+            }
             Intent i = new Intent(RoadActivity.this, QuestionActivity.class);
             i.putExtra("current_question", currentQuestionId);
             i.putExtra("hinted", hinted);

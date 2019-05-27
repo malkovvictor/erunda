@@ -117,29 +117,44 @@ public class TravelController {
 
     public void chooseRoad() {
         SQLiteDatabase db = dbh.getReadableDatabase();
-        Cursor cur = db.rawQuery("select * from roads where cityA=? order by random() limit 1", new String[] {Integer.toString(getSource())});
+        SharedPreferences.Editor spe = mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit();
+
+        Cursor cur = db.rawQuery("select min(visits) as mv from roads inner join cities on roads.cityB=cities.id where roads.cityA=?", new String[] {Integer.toString(getSource())});
+        cur.moveToFirst();
+        int minimum = cur.getInt(cur.getColumnIndex("mv"));
+        cur.close();
+
+        //cur = db.rawQuery("select * from roads where cityA=? order by random() limit 1", new String[] {Integer.toString(getSource())});
+        cur = db.rawQuery("select * from roads inner join cities on roads.cityB=cities.id where roads.cityA=? and visits=? order by random() limit 1", new String[] {Integer.toString(getSource()), Integer.toString(minimum)});
         cur.moveToFirst();
         int cityB = cur.getInt(cur.getColumnIndex("cityB"));
-        mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("dest", cityB).apply();
+        spe.putInt("dest", cityB);
         int terrain = cur.getInt(cur.getColumnIndex("terrainType"));
-        mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("terrain", terrain).apply();
+        spe.putInt("terrain", terrain);
         int roadType = cur.getInt(cur.getColumnIndex("roadType"));
-        mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("roadType", roadType).apply();
+        spe.putInt("roadType", roadType);
         Integer step = cur.getInt(cur.getColumnIndex("cost"));
         if (step == null || step == 0) {
             step = defaultStep;
         }
         int toScore = getSourceScore() + step;
-        mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE).edit().putInt("to", toScore).apply();
+        spe.putInt("to", toScore);
+
+        spe.apply();
         cur.close();
     }
 
     public void arrive() {
         SharedPreferences sp = mContext.getSharedPreferences(mContext.getPackageName() + ".travel", Context.MODE_PRIVATE);
-
         int dest = sp.getInt("dest", 1);
+        int source = sp.getInt("source", 1);
+
+        SQLiteDatabase db = dbh.getReadableDatabase();
+        db.execSQL("update cities set visits=visits+1 where id=?", new Object[] {dest});
+
         int star = mContext.getSharedPreferences(mContext.getPackageName() + ".score", Context.MODE_PRIVATE).getInt("stars", getSourceScore());
         sp.edit()
+                .putInt("previous", source)
                 .putInt("source", dest)
                 .putInt("dest", -1)
                 .putInt("from", star)

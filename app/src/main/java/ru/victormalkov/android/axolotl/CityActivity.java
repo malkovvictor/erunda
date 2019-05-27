@@ -29,6 +29,12 @@ public class CityActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_city);
+        if (savedInstanceState != null && savedInstanceState.containsKey("city_photo")) {
+            int id = savedInstanceState.getInt("city_photo");
+            int factId = savedInstanceState.getInt("fact_id");
+            mCityPhoto = tc.getCityView(id, factId);
+
+        }
         if (mCityPhoto == null) {
             mCityPhoto = tc.getCityViewByCity();
         }
@@ -62,6 +68,12 @@ public class CityActivity extends AppCompatActivity {
 
                 ((TextView)findViewById(R.id.poiName)).setText(mCityPhoto.name);
                 ((TextView)findViewById(R.id.poiFact)).setText(mCityPhoto.fact);
+                if (mCityPhoto.name == null || mCityPhoto.name.isEmpty()) {
+                    findViewById(R.id.poiName).setVisibility(View.GONE);
+                }
+                if (mCityPhoto.fact == null || mCityPhoto.fact.isEmpty()) {
+                    findViewById(R.id.poiFact).setVisibility(View.GONE);
+                }
             } catch (IOException e) {
                 // Don't worry
             }
@@ -80,7 +92,7 @@ public class CityActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState.containsKey("city_photo")) {
+        if (mCityPhoto == null && savedInstanceState.containsKey("city_photo")) {
             int id = savedInstanceState.getInt("city_photo");
             int factId = savedInstanceState.getInt("fact_id");
             mCityPhoto = tc.getCityView(id, factId);
