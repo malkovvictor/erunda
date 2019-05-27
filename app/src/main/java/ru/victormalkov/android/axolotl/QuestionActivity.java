@@ -357,8 +357,11 @@ public class QuestionActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT);
 
             View v = recyclerView.getChildAt(q.right);
-            ((CardView) ((LinearLayout) v).getChildAt(0))
-                    .setCardBackgroundColor(getResources().getColor(R.color.correct));
+            RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(q.right);
+            if (vh != null) {
+                ((CardView) ((LinearLayout) vh.itemView).getChildAt(0))
+                        .setCardBackgroundColor(getResources().getColor(R.color.correct));
+            }
 
             if (!correct) {
                 ((CardView) ((LinearLayout) view).getChildAt(0))
