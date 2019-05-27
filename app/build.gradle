@@ -6,8 +6,8 @@ android {
         applicationId "ru.victormalkov.android.axolotl"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 1
-        versionName "0.5-alpha"
+        versionCode 2
+        versionName "0.6-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
