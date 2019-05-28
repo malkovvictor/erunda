@@ -356,7 +356,6 @@ public class QuestionActivity extends AppCompatActivity {
             String text = correct ? getResources().getString(R.string.correct) : getResources().getString(R.string.incorrect);
             Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT);
 
-            View v = recyclerView.getChildAt(q.right);
             RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(q.right);
             if (vh != null) {
                 ((CardView) ((LinearLayout) vh.itemView).getChildAt(0))
