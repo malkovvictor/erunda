@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class QuizDatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "questions.db";
-    private static final int DB_VERSION = 61;
+    private static final int DB_VERSION = 63;
     private final Context myContext;
 
     private static QuizDatabaseHelper mInstance = null;
@@ -32,8 +32,7 @@ public class QuizDatabaseHelper extends SQLiteOpenHelper {
     }
 
     //Copies your database from your local assets-folder to the just created empty database in the system folder
-    private void installDatabase() throws IOException
-    {
+    private void installDatabase() throws IOException {
         Log.v("DB Create", "begin copy database");
         InputStream mInput = myContext.getAssets().open(DB_NAME);
         Log.v("DB Create", myContext.getDatabasePath(DB_NAME).getPath());
