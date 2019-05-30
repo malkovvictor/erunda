@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.ads.consent.ConsentInformation;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -66,13 +67,16 @@ public class QuestionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_question);
         initConstant();
 
-        MobileAds.initialize(this, getString(R.string.addmobAppId));
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice(getString(R.string.my_test_phone_id))
-                .build();
-        mAdView.loadAd(adRequest);
+        ConsentInformation consentInformation = ConsentInformation.getInstance(this);
+        if (!consentInformation.isRequestLocationInEeaOrUnknown()) {
+            MobileAds.initialize(this, getString(R.string.addmobAppId));
+            mAdView = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                    .addTestDevice(getString(R.string.my_test_phone_id))
+                    .build();
+            mAdView.loadAd(adRequest);
+        }
 
         dbHelper = QuizDatabaseHelper.getInstance(getApplicationContext());
         tc = TravelController.getInstance(getApplicationContext());
