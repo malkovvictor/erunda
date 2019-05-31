@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2f0b59</color>
-    <color name="colorPrimaryDark">#2F0B59</color>
+    <color name="colorPrimary">#3e2723</color>
+    <color name="colorPrimaryDark">#1b0000</color>
     <color name="colorAccent">#D81B60</color>
 
-    <color name="answerBackgroundColor">#bb2f0b59</color>
-    <color name="questionBackgroundColor">#2f0b59</color>
-    <color name="questionBackgroundColor2">#99000051</color>
+    <color name="answerBackgroundColor">#881b0000</color>
+    <color name="questionBackgroundColor">#1b0000</color>
 
-    <color name="correct">#bb669900</color>
+    <color name="correct">#bb009624</color>
     <color name="incorrect">#bbcc0000</color>
     <color name="cityBackground">@color/colorPrimaryDark</color>
-    <color name="cityLabelBackground">#802f0b59</color>
+    <color name="cityLabelBackground">#801b0000</color>
     <color name="cityBackground2">#80009688</color>
     <color name="starColor">#FFC107</color>
 

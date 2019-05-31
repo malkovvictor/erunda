@@ -2,8 +2,8 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -44,9 +44,6 @@
         app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintTop_toBottomOf="@id/toppanel">
 
-        <!-- android:background="@drawable/elochka4"
- android:tileMode="repeat"-->
-
         <android.support.v7.widget.CardView
             android:id="@+id/question_card_view"
             style="@style/QuestionViewStyle"
@@ -74,8 +71,8 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
             android:scrollbars="vertical"
             ads:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
