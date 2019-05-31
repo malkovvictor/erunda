@@ -18,4 +18,7 @@
     <string name="airplane">✈️️</string>
 
     <string name="mapButtonText">@string/train</string>
+    <string name="termsAcceptedButtonText">Принять</string>
+    <string name="termsRejectedButtonText">Отклонить</string>
+    <string name="showTermsButton"><u>Юр. инфо</u></string>
 </resources>

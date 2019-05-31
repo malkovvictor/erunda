@@ -21,6 +21,7 @@ public class TravelController {
     private Context mContext;
     private QuizDatabaseHelper dbh;
 
+    private Boolean eulaAccepted = null;
     private static TravelController mInstance = null;
 
     public static TravelController getInstance(Context context) {
@@ -161,5 +162,20 @@ public class TravelController {
                 .putInt("to", -1)
                 .apply();
 
+    }
+
+    public boolean isEulaAccepted() {
+        if (eulaAccepted == null) {
+            SharedPreferences sp = mContext.getSharedPreferences(mContext.getPackageName() + ".eula", Context.MODE_PRIVATE);
+            if (sp != null && sp.contains("accepted")) {
+                eulaAccepted = sp.getBoolean("accepted", false);
+            }
+        }
+        return eulaAccepted == null? false : eulaAccepted;
+    }
+
+    public void doAcceptEula(boolean accept) {
+        mContext.getSharedPreferences(mContext.getPackageName() + ".eula", Context.MODE_PRIVATE).edit().putBoolean("accepted", accept).apply();
+        eulaAccepted = accept;
     }
 }

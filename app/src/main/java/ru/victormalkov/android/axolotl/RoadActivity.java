@@ -69,6 +69,12 @@ public class RoadActivity extends AppCompatActivity {
         clickable = true;
         b.setOnClickListener(listener);
         iv.setOnClickListener(listener);
+        findViewById(R.id.roadTermsButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new EulaDialog().show(getFragmentManager(), "eula");
+            }
+        });
     }
 
     private class MyClickListener implements View.OnClickListener {

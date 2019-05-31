@@ -2,8 +2,8 @@ package ru.victormalkov.android.axolotl;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -20,6 +20,9 @@ public class CityActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tc = TravelController.getInstance(getApplicationContext());
+/*        if (tc.isEulaAccepted() != true) {
+            new EulaDialog().show(getFragmentManager(), "eula");
+        }*/
         if (tc.getDest() >= 0) {
             Intent i = new Intent(this, RoadActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -33,7 +36,6 @@ public class CityActivity extends AppCompatActivity {
             int id = savedInstanceState.getInt("city_photo");
             int factId = savedInstanceState.getInt("fact_id");
             mCityPhoto = tc.getCityView(id, factId);
-
         }
         if (mCityPhoto == null) {
             mCityPhoto = tc.getCityViewByCity();
@@ -48,6 +50,13 @@ public class CityActivity extends AppCompatActivity {
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 CityActivity.this.finish();
                 startActivity(i);
+            }
+        });
+
+        findViewById(R.id.termsTextView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new EulaDialog().show(getFragmentManager(), "eula");
             }
         });
     }

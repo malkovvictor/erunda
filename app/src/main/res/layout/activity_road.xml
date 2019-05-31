@@ -83,9 +83,19 @@
         android:background="@color/cityLabelBackground"
         android:text=""
         app:layout_constraintBottom_toBottomOf="@+id/roadView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintEnd_toStartOf="@id/roadTermsButton"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/roadTermsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:background="@color/cityLabelBackground"
+        android:text="@string/showTermsButton"
+        app:layout_constraintBottom_toBottomOf="@+id/roadView"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout"

@@ -2,6 +2,7 @@ package ru.victormalkov.android.axolotl;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class CityPhoto {
     int id;
@@ -37,6 +38,7 @@ public class CityPhoto {
     }
 
     public static CityPhoto loadRandom(SQLiteDatabase db, TravelController travelController) {
+//        Log.v("CityPhoto", String.format("load photo for city %d", travelController.getSource()));
         Cursor cur = db.rawQuery("select * from cityPOI where city=? order by random() limit 1", new String[] {Integer.toString(travelController.getSource())});
         CityPhoto res = null;
         if (cur.moveToFirst()) {
