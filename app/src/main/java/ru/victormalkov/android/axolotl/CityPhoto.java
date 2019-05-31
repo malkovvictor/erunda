@@ -82,7 +82,7 @@ public class CityPhoto {
             if (copyrightLicense == null || copyrightLicense.isEmpty()) {
                 return String.format("%s © %s", copyrightTitle, copyrightAuthor);
             } else {
-                return String.format("%s © %s / %s", copyrightTitle, copyrightAuthor, copyrightLicense);
+                return String.format("%s © %s<br/>%s", copyrightTitle, copyrightAuthor, copyrightLicense);
             }
         } else {
             if (copyrightTitle.isEmpty()) {
@@ -91,7 +91,7 @@ public class CityPhoto {
             if (copyrightLicense == null || copyrightLicense.isEmpty()) {
                 return String.format("<a href=\"%s\">%s</a> © %s", copyrightLink, copyrightTitle, copyrightAuthor);
             } else {
-                return String.format("<a href=\"%s\">%s</a> © %s / %s", copyrightLink, copyrightTitle, copyrightAuthor, copyrightLicense);
+                return String.format("<a href=\"%s\">%s</a> © %s<br/>%s", copyrightLink, copyrightTitle, copyrightAuthor, copyrightLicense);
             }
         }
     }
