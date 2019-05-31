@@ -1,10 +1,13 @@
 package ru.victormalkov.android.axolotl;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -24,7 +27,8 @@ public class TravelController {
     private Boolean eulaAccepted = null;
     private static TravelController mInstance = null;
 
-    public static TravelController getInstance(Context context) {
+    public static synchronized TravelController getInstance(Context context) {
+        Log.v("TravelController", "Get tc for context " + context.toString());
         if (mInstance == null) {
             mInstance = new TravelController(context);
         }
@@ -164,18 +168,27 @@ public class TravelController {
 
     }
 
-    public boolean isEulaAccepted() {
+    public @Nullable Boolean isEulaAccepted() {
         if (eulaAccepted == null) {
             SharedPreferences sp = mContext.getSharedPreferences(mContext.getPackageName() + ".eula", Context.MODE_PRIVATE);
             if (sp != null && sp.contains("accepted")) {
                 eulaAccepted = sp.getBoolean("accepted", false);
             }
         }
-        return eulaAccepted == null? false : eulaAccepted;
+        return eulaAccepted;
     }
 
     public void doAcceptEula(boolean accept) {
-        mContext.getSharedPreferences(mContext.getPackageName() + ".eula", Context.MODE_PRIVATE).edit().putBoolean("accepted", accept).apply();
+        // must commit, not apply
+        mContext.getSharedPreferences(mContext.getPackageName() + ".eula", Context.MODE_PRIVATE).edit().putBoolean("accepted", accept).commit();
         eulaAccepted = accept;
+        Log.v("TravelController", String.format("eula accept set to %B", mContext.getSharedPreferences(mContext.getPackageName() + ".eula", Context.MODE_PRIVATE).getBoolean("accepted", false) ));
+    }
+
+    public void doLegalStuff(FragmentManager fragmentManager) {
+        Boolean ea = this.isEulaAccepted();
+        if (ea != null && !ea) {
+            new EulaDialog().show(fragmentManager, "eula");
+        }
     }
 }

@@ -20,9 +20,6 @@ public class CityActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tc = TravelController.getInstance(getApplicationContext());
-/*        if (tc.isEulaAccepted() != true) {
-            new EulaDialog().show(getFragmentManager(), "eula");
-        }*/
         if (tc.getDest() >= 0) {
             Intent i = new Intent(this, RoadActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -32,6 +29,8 @@ public class CityActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_city);
+        tc.doLegalStuff(getFragmentManager());
+
         if (savedInstanceState != null && savedInstanceState.containsKey("city_photo")) {
             int id = savedInstanceState.getInt("city_photo");
             int factId = savedInstanceState.getInt("fact_id");

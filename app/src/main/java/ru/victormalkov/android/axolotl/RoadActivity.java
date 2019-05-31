@@ -43,6 +43,8 @@ public class RoadActivity extends AppCompatActivity {
         RoadImage rv = tc.getRoadView();
         iv.setImageDrawable(rv.image);
 
+        tc.doLegalStuff(getFragmentManager());
+
         TextView roadPhotoCopyright = findViewById(R.id.roadPhotoCopyright);
         roadPhotoCopyright.setText(Html.fromHtml(rv.credits));
         roadPhotoCopyright.setMovementMethod(LinkMovementMethod.getInstance());
