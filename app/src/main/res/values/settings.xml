@@ -4,7 +4,7 @@
     <integer name="delay">2000</integer>
     <integer name="transition_duration">400</integer>
 
-    <integer name="reward">50</integer>
+    <integer name="reward">5</integer>
     <integer name="penalty">-3</integer>
     <integer name="hint_cost">-1</integer>
 
