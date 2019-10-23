@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout2"
@@ -8,7 +8,7 @@
     android:background="@color/cityBackground"
     tools:context=".RoadActivity">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         style="@style/CitySignStyle"
         android:layout_width="wrap_content"
@@ -26,9 +26,9 @@
             android:textColor="@android:color/black"
             android:textSize="28sp"
             android:textStyle="bold" />
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardView2"
         style="@style/CitySignStyle"
         android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
     <ImageView
         android:id="@+id/roadView"
@@ -143,4 +143,4 @@
         app:layout_constraintTop_toBottomOf="@+id/cardView"
         app:srcCompat="@drawable/arrow" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
